@@ -1,19 +1,20 @@
 import request from "supertest";
+import mongoose from "mongoose";
 import app from "../src/app.js";
 
 describe("Auth Routes", () => {
-
   let token;
+
+  beforeAll(async () => {
+    while (mongoose.connection.readyState !== 1) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }, 60000);
 
   it("should register a user", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({
-        name: "Test User",
-        email: "test@example.com",
-        password: "123456"
-      });
-
+      .send({ name: "Test User", email: "test@example.com", password: "123456" });
     expect(res.statusCode).toBe(201);
     expect(res.body.email).toBe("test@example.com");
   });
@@ -21,15 +22,9 @@ describe("Auth Routes", () => {
   it("should login user and return token", async () => {
     const res = await request(app)
       .post("/api/auth/login")
-      .send({
-        email: "test@example.com",
-        password: "123456"
-      });
-
+      .send({ email: "test@example.com", password: "123456" });
     expect(res.statusCode).toBe(200);
     expect(res.body.token).toBeDefined();
-
     token = res.body.token;
   });
-
 });
