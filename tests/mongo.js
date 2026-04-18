@@ -1,17 +1,15 @@
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.test" });
-
-import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
 
 let mongod;
 
-beforeAll(async () => {
+export async function connect() {
   mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri());
-}, 60000);
+}
 
-afterAll(async () => {
+export async function disconnect() {
+  await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
   await mongod.stop();
-}, 60000);
+}
